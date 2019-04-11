@@ -1,6 +1,6 @@
 # Islands Client RPC
 
-Remote procedure calls for clients of the _Game of Islands_.
+Remote procedure calls for the _Game of Islands_.
 
 ## Installation
 

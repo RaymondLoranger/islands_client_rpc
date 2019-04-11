@@ -7,7 +7,7 @@ defmodule Islands.Client.RPC do
   @course_ref Application.get_env(@app, :course_ref)
 
   @moduledoc """
-  Remote procedure calls for clients of the _Game of Islands_.
+  Remote procedure calls for the _Game of Islands_.
   \n##### #{@course_ref}
   """
 
