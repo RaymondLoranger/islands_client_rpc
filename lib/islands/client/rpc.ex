@@ -35,7 +35,7 @@ defmodule Islands.Client.RPC do
         game_name
 
       {:error, {:already_started, _pid}} ->
-        game_name |> GameAlreadyStarted.message() |> ANSI.puts()
+        GameAlreadyStarted.message(game_name) |> ANSI.puts()
         self() |> Process.exit(:normal)
 
       {:badrpc, :nodedown} ->
@@ -63,11 +63,11 @@ defmodule Islands.Client.RPC do
         game_name
 
       %Tally{response: {:error, :player2_already_added}} ->
-        game_name |> GameAlreadyUnderway.message() |> ANSI.puts()
+        GameAlreadyUnderway.message(game_name) |> ANSI.puts()
         self() |> Process.exit(:normal)
 
       {:badrpc, {:EXIT, {:noproc, _}}} ->
-        game_name |> GameNotStarted.message() |> ANSI.puts()
+        GameNotStarted.message(game_name) |> ANSI.puts()
         self() |> Process.exit(:normal)
 
       {:badrpc, :nodedown} ->
