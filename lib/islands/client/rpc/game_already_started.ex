@@ -1,7 +1,8 @@
 defmodule Islands.Client.RPC.GameAlreadyStarted do
   alias IO.ANSI.Plus, as: ANSI
+  alias Islands.Game
 
-  @spec message(String.t()) :: ANSI.ansilist()
+  @spec message(Game.name()) :: ANSI.ansilist()
   def message(game_name) do
     [
       :fuchsia_background,

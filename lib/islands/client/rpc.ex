@@ -2,35 +2,39 @@
 # │ Inspired by the course "Elixir for Programmers" by Dave Thomas. │
 # └─────────────────────────────────────────────────────────────────┘
 defmodule Islands.Client.RPC do
-  use PersistConfig
-
-  @course_ref Application.get_env(@app, :course_ref)
-
   @moduledoc """
   Remote procedure calls for the _Game of Islands_.
-  \n##### #{@course_ref}
+
+  ##### Inspired by the course [Elixir for Programmers](https://codestool.coding-gnome.com/courses/elixir-for-programmers) by Dave Thomas.
   """
 
   alias __MODULE__.{
+    CannotConnectToNode,
+    ConnectedToNode,
+    EngineNodeDown,
+    EngineNotStarted,
     GameAlreadyStarted,
     GameAlreadyUnderway,
-    GameNotStarted,
-    IslandsEngineNotStarted
+    GameNotStarted
   }
 
   alias IO.ANSI.Plus, as: ANSI
-  alias Islands.{Engine, Player, Tally}
+  alias Islands.{Engine, Game, Player, Tally}
 
-  @node Application.get_env(@app, :islands_node)
+  @spec new_game(node, Game.name(), Player.name(), Player.gender()) ::
+          Game.name() | no_return
+  def new_game(engine_node, game_name, player_name, gender) do
+    if Node.connect(engine_node) do
+      ConnectedToNode.message(engine_node) |> ANSI.puts()
+    else
+      CannotConnectToNode.message(engine_node) |> ANSI.puts()
+      self() |> Process.exit(:normal)
+    end
 
-  @spec new_game(String.t(), String.t(), Player.gender()) ::
-          String.t() | no_return
-  def new_game(game_name, player_name, gender) do
-    Node.connect(@node)
     :ok = :global.sync()
     args = [game_name, player_name, gender, self()]
 
-    case :rpc.call(@node, Engine, :new_game, args) do
+    case :rpc.call(engine_node, Engine, :new_game, args) do
       {:ok, _pid} ->
         game_name
 
@@ -39,11 +43,11 @@ defmodule Islands.Client.RPC do
         self() |> Process.exit(:normal)
 
       {:badrpc, :nodedown} ->
-        IslandsEngineNotStarted.message(:nodedown) |> ANSI.puts()
+        EngineNodeDown.message(engine_node) |> ANSI.puts()
         self() |> Process.exit(:normal)
 
       {:badrpc, {:EXIT, {:undef, _}}} ->
-        IslandsEngineNotStarted.message(:nodeup) |> ANSI.puts()
+        EngineNotStarted.message(engine_node) |> ANSI.puts()
         self() |> Process.exit(:normal)
 
       error ->
@@ -51,14 +55,20 @@ defmodule Islands.Client.RPC do
     end
   end
 
-  @spec add_player(String.t(), String.t(), Player.gender()) ::
-          String.t() | no_return
-  def add_player(game_name, player_name, gender) do
-    Node.connect(@node)
+  @spec add_player(node, Game.name(), Player.name(), Player.gender()) ::
+          Game.name() | no_return
+  def add_player(engine_node, game_name, player_name, gender) do
+    if Node.connect(engine_node) do
+      ConnectedToNode.message(engine_node) |> ANSI.puts()
+    else
+      CannotConnectToNode.message(engine_node) |> ANSI.puts()
+      self() |> Process.exit(:normal)
+    end
+
     :ok = :global.sync()
     args = [game_name, player_name, gender, self()]
 
-    case :rpc.call(@node, Engine, :add_player, args) do
+    case :rpc.call(engine_node, Engine, :add_player, args) do
       %Tally{response: {:ok, :player2_added}} ->
         game_name
 
@@ -71,11 +81,11 @@ defmodule Islands.Client.RPC do
         self() |> Process.exit(:normal)
 
       {:badrpc, :nodedown} ->
-        IslandsEngineNotStarted.message(:nodedown) |> ANSI.puts()
+        EngineNodeDown.message(engine_node) |> ANSI.puts()
         self() |> Process.exit(:normal)
 
       {:badrpc, {:EXIT, {:undef, _}}} ->
-        IslandsEngineNotStarted.message(:nodeup) |> ANSI.puts()
+        EngineNotStarted.message(engine_node) |> ANSI.puts()
         self() |> Process.exit(:normal)
 
       error ->
