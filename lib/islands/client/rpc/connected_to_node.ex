@@ -8,7 +8,7 @@ defmodule Islands.Client.RPC.ConnectedToNode do
       :light_white,
       "Connected to node ",
       :italic,
-      "#{inspect(engine_node)}...\n"
+      "#{inspect(engine_node)}..."
     ]
   end
 end
