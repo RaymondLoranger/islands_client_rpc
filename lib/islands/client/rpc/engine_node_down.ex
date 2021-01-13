@@ -7,11 +7,9 @@ defmodule Islands.Client.RPC.EngineNodeDown do
       :fuchsia_background,
       :light_white,
       "Islands Engine node ",
-      :fuchsia_background,
-      :stratos,
+      :italic,
       "#{inspect(engine_node)}",
-      :fuchsia_background,
-      :light_white,
+      :not_italic,
       " is down."
     ]
   end

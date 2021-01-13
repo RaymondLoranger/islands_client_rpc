@@ -7,12 +7,8 @@ defmodule Islands.Client.RPC.EngineNotStarted do
       :fuchsia_background,
       :light_white,
       "Islands Engine not started on node ",
-      :fuchsia_background,
-      :stratos,
-      "#{inspect(engine_node)}",
-      :fuchsia_background,
-      :light_white,
-      "."
+      :italic,
+      "#{inspect(engine_node)}."
     ]
   end
 end

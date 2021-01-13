@@ -7,12 +7,8 @@ defmodule Islands.Client.RPC.CannotConnectToNode do
       :fuchsia_background,
       :light_white,
       "Cannot connect to node ",
-      :fuchsia_background,
-      :stratos,
-      "#{inspect(engine_node)}",
-      :fuchsia_background,
-      :light_white,
-      "."
+      :italic,
+      "#{inspect(engine_node)}."
     ]
   end
 end
