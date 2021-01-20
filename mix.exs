@@ -4,7 +4,7 @@ defmodule Islands.Client.RPC.MixProject do
   def project do
     [
       app: :islands_client_rpc,
-      version: "0.1.13",
+      version: "0.1.14",
       elixir: "~> 1.11",
       start_permanent: Mix.env() == :prod,
       name: "Islands Client RPC",
@@ -51,9 +51,7 @@ defmodule Islands.Client.RPC.MixProject do
       {:io_ansi_plus, "~> 0.1"},
       {:islands_engine, "~> 0.2"},
       {:islands_player, "~> 0.1"},
-      {:islands_tally, "~> 0.1"},
-      {:mix_tasks,
-       github: "RaymondLoranger/mix_tasks", only: :dev, runtime: false}
+      {:islands_tally, "~> 0.1"}
     ]
   end
 end
