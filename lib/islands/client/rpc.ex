@@ -21,6 +21,9 @@ defmodule Islands.Client.RPC do
   alias IO.ANSI.Plus, as: ANSI
   alias Islands.{Engine, Game, Player, Tally}
 
+  @doc """
+  Connects to the engine node and starts a new game on that node.
+  """
   @spec new_game(node, Game.name(), Player.name(), Player.gender()) ::
           Game.name() | no_return
   def new_game(engine_node, game_name, player_name, gender) do
@@ -55,6 +58,9 @@ defmodule Islands.Client.RPC do
     end
   end
 
+  @doc """
+  Connects to the engine node and adds the second player of a game on that node.
+  """
   @spec add_player(node, Game.name(), Player.name(), Player.gender()) ::
           Game.name() | no_return
   def add_player(engine_node, game_name, player_name, gender) do
