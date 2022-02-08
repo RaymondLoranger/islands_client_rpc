@@ -76,16 +76,16 @@ defmodule Islands.Client.RPC do
         GameAlreadyUnderway.message(game_name) |> ANSI.puts()
         self() |> Process.exit(:normal)
 
+      {:badrpc, {:EXIT, {:undef, _}}} ->
+        EngineNotStarted.message(engine_node) |> ANSI.puts()
+        self() |> Process.exit(:normal)
+
       {:badrpc, {:EXIT, {:noproc, _}}} ->
         GameNotStarted.message(game_name) |> ANSI.puts()
         self() |> Process.exit(:normal)
 
       {:badrpc, :nodedown} ->
         EngineNodeDown.message(engine_node) |> ANSI.puts()
-        self() |> Process.exit(:normal)
-
-      {:badrpc, {:EXIT, {:undef, _}}} ->
-        EngineNotStarted.message(engine_node) |> ANSI.puts()
         self() |> Process.exit(:normal)
 
       error ->
