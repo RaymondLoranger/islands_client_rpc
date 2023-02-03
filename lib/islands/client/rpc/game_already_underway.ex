@@ -2,16 +2,20 @@ defmodule Islands.Client.RPC.GameAlreadyUnderway do
   alias IO.ANSI.Plus, as: ANSI
   alias Islands.Game
 
-  @spec message(Game.name()) :: ANSI.ansilist()
-  def message(game_name) do
+  @spec message(Game.name(), node) :: ANSI.ansilist()
+  def message(name, node) do
     [
       :fuchsia_background,
       :light_white,
-      "Game ",
+      "Islands Game ",
       :italic,
-      "#{game_name}",
+      "#{name}",
       :not_italic,
-      " already underway."
+      " already underway on node ",
+      :italic,
+      "#{inspect(node)}",
+      :not_italic,
+      "."
     ]
   end
 end

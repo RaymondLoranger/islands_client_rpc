@@ -3,13 +3,13 @@ defmodule Islands.Client.RPC.GameNotStarted do
   alias Islands.Game
 
   @spec message(Game.name()) :: ANSI.ansilist()
-  def message(game_name) do
+  def message(name) do
     [
       :fuchsia_background,
       :light_white,
-      "Game ",
+      "Islands Game ",
       :italic,
-      "#{game_name}",
+      "#{name}",
       :not_italic,
       " not started."
     ]

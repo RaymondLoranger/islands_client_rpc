@@ -34,15 +34,17 @@ defmodule Islands.Client.RPC do
       self() |> Process.exit(:normal)
     end
 
+    # Synchronizes the global name server with all nodes known to this node.
     :ok = :global.sync()
     args = [game_name, player_name, gender, self()]
 
+    # Remote procedure call to call a function on a remote node.
     case :rpc.call(engine_node, Engine, :new_game, args) do
       {:ok, _pid} ->
         game_name
 
       {:error, {:already_started, _pid}} ->
-        GameAlreadyStarted.message(game_name) |> ANSI.puts()
+        GameAlreadyStarted.message(game_name, engine_node) |> ANSI.puts()
         self() |> Process.exit(:normal)
 
       {:badrpc, :nodedown} ->
@@ -79,7 +81,11 @@ defmodule Islands.Client.RPC do
         game_name
 
       %Tally{response: {:error, :player2_already_added}} ->
-        GameAlreadyUnderway.message(game_name) |> ANSI.puts()
+        GameAlreadyUnderway.message(game_name, engine_node) |> ANSI.puts()
+        self() |> Process.exit(:normal)
+
+      {:badrpc, :nodedown} ->
+        EngineNodeDown.message(engine_node) |> ANSI.puts()
         self() |> Process.exit(:normal)
 
       {:badrpc, {:EXIT, {:undef, _}}} ->
@@ -88,10 +94,6 @@ defmodule Islands.Client.RPC do
 
       {:badrpc, {:EXIT, {:noproc, _}}} ->
         GameNotStarted.message(game_name) |> ANSI.puts()
-        self() |> Process.exit(:normal)
-
-      {:badrpc, :nodedown} ->
-        EngineNodeDown.message(engine_node) |> ANSI.puts()
         self() |> Process.exit(:normal)
 
       error ->
