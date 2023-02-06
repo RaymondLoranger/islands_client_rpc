@@ -4,7 +4,7 @@ defmodule Islands.Client.RPC.MixProject do
   def project do
     [
       app: :islands_client_rpc,
-      version: "0.1.26",
+      version: "0.1.27",
       elixir: "~> 1.11",
       start_permanent: Mix.env() == :prod,
       name: "Islands Client RPC",
@@ -38,6 +38,7 @@ defmodule Islands.Client.RPC.MixProject do
   # Run "mix help compile.app" to learn about applications.
   def application do
     [
+      # App `:islands_engine` must run on node `:islands_engine@<hostname>`.
       included_applications: [:islands_engine],
       extra_applications: [:logger]
     ]

@@ -13,6 +13,7 @@ defmodule Islands.Client.RPC do
     ConnectedToNode,
     EngineNodeDown,
     EngineNotStarted,
+    EnsureEngineStarted,
     GameAlreadyStarted,
     GameAlreadyUnderway,
     GameNotStarted
@@ -47,12 +48,20 @@ defmodule Islands.Client.RPC do
         GameAlreadyStarted.message(game_name, engine_node) |> ANSI.puts()
         self() |> Process.exit(:normal)
 
+      # Extremely unlikely since we've already connected at this point.
       {:badrpc, :nodedown} ->
         EngineNodeDown.message(engine_node) |> ANSI.puts()
         self() |> Process.exit(:normal)
 
+      # E.g. `iex --sname islands_engine` without adding option `-S mix`.
       {:badrpc, {:EXIT, {:undef, _}}} ->
         EngineNotStarted.message(engine_node) |> ANSI.puts()
+        self() |> Process.exit(:normal)
+
+      # E.g. on the engine node after app `:hangman_engine` crashed/exited.
+      # To fix the problem: Application.ensure_all_started(:hangman_engine)
+      {:badrpc, {:EXIT, {:noproc, _}}} ->
+        EnsureEngineStarted.message(engine_node) |> ANSI.puts()
         self() |> Process.exit(:normal)
 
       error ->
@@ -73,9 +82,11 @@ defmodule Islands.Client.RPC do
       self() |> Process.exit(:normal)
     end
 
+    # Synchronizes the global name server with all nodes known to this node.
     :ok = :global.sync()
     args = [game_name, player_name, gender, self()]
 
+    # Remote procedure call to call a function on a remote node.
     case :rpc.call(engine_node, Engine, :add_player, args) do
       %Tally{response: {:ok, :player2_added}} ->
         game_name
@@ -84,14 +95,17 @@ defmodule Islands.Client.RPC do
         GameAlreadyUnderway.message(game_name, engine_node) |> ANSI.puts()
         self() |> Process.exit(:normal)
 
+      # Extremely unlikely since we've already connected at this point.
       {:badrpc, :nodedown} ->
         EngineNodeDown.message(engine_node) |> ANSI.puts()
         self() |> Process.exit(:normal)
 
+      # E.g. `iex --sname islands_engine` without adding option `-S mix`.
       {:badrpc, {:EXIT, {:undef, _}}} ->
         EngineNotStarted.message(engine_node) |> ANSI.puts()
         self() |> Process.exit(:normal)
 
+      # E.g. the game may have timed out or the game name is inaccurate.
       {:badrpc, {:EXIT, {:noproc, _}}} ->
         GameNotStarted.message(game_name) |> ANSI.puts()
         self() |> Process.exit(:normal)
