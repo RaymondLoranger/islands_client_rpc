@@ -106,9 +106,15 @@ defmodule Islands.Client.RPC do
         self() |> Process.exit(:normal)
 
       # E.g. the game may have timed out or the game name is inaccurate.
-      {error, {:EXIT, {:noproc, _}}} = return when error in [:badrpc, :error] ->
-        IO.inspect(return, label: "+++ :rpc.call return value +++")
-        GameNotStarted.message(game_name) |> ANSI.puts()
+      {:error, {:noproc, _} = reason} ->
+        GameNotStarted.message(game_name, reason) |> ANSI.puts()
+        self() |> Process.exit(:normal)
+
+      # E.g. the game may have timed out or the game name is inaccurate.
+      # Will never occur since `Islands.Engine.add_player/4` is actually
+      # using `GenServer.Proxy.call/4` as opposed to `GenServer.call/3`.
+      {:badrpc, {:EXIT, {:noproc, _}} = reason} ->
+        GameNotStarted.message(game_name, reason) |> ANSI.puts()
         self() |> Process.exit(:normal)
 
       error ->
