@@ -59,7 +59,7 @@ defmodule Islands.Client.RPC do
         self() |> Process.exit(:normal)
 
       # E.g. on the engine node after app `:hangman_engine` crashed/exited.
-      # To fix the problem: Application.ensure_all_started(:hangman_engine)
+      # To fix the problem: Application.ensure_all_started(:islands_engine)
       {:badrpc, {:EXIT, {:noproc, _}}} ->
         EnsureEngineStarted.message(engine_node) |> ANSI.puts()
         self() |> Process.exit(:normal)
@@ -106,7 +106,8 @@ defmodule Islands.Client.RPC do
         self() |> Process.exit(:normal)
 
       # E.g. the game may have timed out or the game name is inaccurate.
-      {:badrpc, {:EXIT, {:noproc, _}}} ->
+      {error, {:EXIT, {:noproc, _}}} = return when error in [:badrpc, :error] ->
+        IO.inspect(return, label: "+++ :rpc.call return value +++")
         GameNotStarted.message(game_name) |> ANSI.puts()
         self() |> Process.exit(:normal)
 
