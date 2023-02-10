@@ -8,6 +8,8 @@ defmodule Islands.Client.RPC do
   ##### Inspired by the course [Elixir for Programmers](https://codestool.coding-gnome.com/courses/elixir-for-programmers) by Dave Thomas.
   """
 
+  require Logger
+
   alias __MODULE__.{
     CannotConnectToNode,
     ConnectedToNode,
@@ -86,9 +88,13 @@ defmodule Islands.Client.RPC do
     :ok = :global.sync()
     args = [game_name, player_name, gender, self()]
 
+    # Silence console in case game has timed out or game name is inaccurate.
+    Logger.configure_backend(:console, level: :none)
+
     # Remote procedure call to call a function on a remote node.
     case :rpc.call(engine_node, Engine, :add_player, args) do
       %Tally{response: {:ok, :player2_added}} ->
+        Logger.configure_backend(:console, level: Logger.level())
         game_name
 
       %Tally{response: {:error, :player2_already_added}} ->
@@ -106,15 +112,15 @@ defmodule Islands.Client.RPC do
         self() |> Process.exit(:normal)
 
       # E.g. the game may have timed out or the game name is inaccurate.
-      {:error, {:noproc, _} = reason} ->
-        GameNotStarted.message(game_name, reason) |> ANSI.puts()
+      {:error, {:noproc, _}} ->
+        GameNotStarted.message(game_name, engine_node) |> ANSI.puts()
         self() |> Process.exit(:normal)
 
       # E.g. the game may have timed out or the game name is inaccurate.
       # Will never occur since `Islands.Engine.add_player/4` is actually
       # using `GenServer.Proxy.call/4` as opposed to `GenServer.call/3`.
-      {:badrpc, {:EXIT, {:noproc, _}} = reason} ->
-        GameNotStarted.message(game_name, reason) |> ANSI.puts()
+      {:badrpc, {:EXIT, {:noproc, _}}} ->
+        GameNotStarted.message(game_name, engine_node) |> ANSI.puts()
         self() |> Process.exit(:normal)
 
       error ->
