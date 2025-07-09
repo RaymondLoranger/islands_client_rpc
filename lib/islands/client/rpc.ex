@@ -89,12 +89,12 @@ defmodule Islands.Client.RPC do
     args = [game_name, player_name, gender, self()]
 
     # Silence console in case game has timed out or game name is inaccurate.
-    Logger.configure_backend(:console, level: :none)
+    :logger.set_handler_config(:default, :level, :none)
 
     # Remote procedure call to call a function on a remote node.
     case :rpc.call(engine_node, Engine, :add_player, args) do
       %Tally{response: {:ok, :player2_added}} ->
-        Logger.configure_backend(:console, level: Logger.level())
+        :logger.set_handler_config(:default, :level, Logger.level())
         game_name
 
       %Tally{response: {:error, :player2_already_added}} ->
